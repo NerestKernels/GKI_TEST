@@ -52,7 +52,7 @@ jobs:
           # Set CONFIG as an environment variable for future steps
           echo "CONFIG=$CONFIG" >> $GITHUB_ENV
 
-      - name: Install ARM GNU Toolchains
+      - name: Install build dependencies
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y \
@@ -61,10 +61,10 @@ jobs:
             clang \
             lld \
             llvm \
-            libelf-dev
-            device-tree-compiler
-          which ld.lld
-          ld.lld --version
+            libelf-dev \
+            device-tree-compiler \
+          which dtc
+          dtc --version
 
       - name: Setup Build Environment
         run: |
