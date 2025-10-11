@@ -52,7 +52,7 @@ jobs:
           # Set CONFIG as an environment variable for future steps
           echo "CONFIG=$CONFIG" >> $GITHUB_ENV
 
-      - name: Install ARM GNU Toolchains + LLVM
+      - name: Install ARM GNU Toolchains
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y \
@@ -60,7 +60,8 @@ jobs:
             gcc-arm-linux-gnueabihf \
             clang \
             lld \
-            llvm
+            llvm \
+            libelf-dev
           which ld.lld
           ld.lld --version
 
