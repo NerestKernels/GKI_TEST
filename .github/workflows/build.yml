@@ -62,7 +62,7 @@ jobs:
             lld \
             llvm \
             libelf-dev \
-            device-tree-compiler \
+            device-tree-compiler
           which dtc
           dtc --version
 
