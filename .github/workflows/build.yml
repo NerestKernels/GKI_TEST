@@ -43,11 +43,6 @@ jobs:
           # remove-swapfile: 'true'        # Frees ~4 GB
           # remove-cached-tools: 'false'   # Avoid unless confirmed safe
           # verbose: 'true'                # Enable detailed logging
-
-      - name: Install ARM GNU Toolchains
-        run: |
-         sudo apt-get update -qq
-         sudo apt-get install -y gcc-aarch64-linux-gnu gcc-arm-linux-gnueabihf
           
       - name: Set CONFIG Environment Variable
         run: |
@@ -56,6 +51,18 @@ jobs:
 
           # Set CONFIG as an environment variable for future steps
           echo "CONFIG=$CONFIG" >> $GITHUB_ENV
+
+      - name: Install ARM GNU Toolchains + LLVM
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y \
+            gcc-aarch64-linux-gnu \
+            gcc-arm-linux-gnueabihf \
+            clang \
+            lld \
+            llvm
+          which ld.lld
+          ld.lld --version
 
       - name: Setup Build Environment
         run: |
@@ -135,7 +142,7 @@ jobs:
             sed -i "s/\"${FORMATTED_BRANCH}\"/\"deprecated\/${FORMATTED_BRANCH}\"/g" $DEFAULT_MANIFEST_PATH
           fi
           
-          $REPO --trace sync -c -j$(nproc --all) --no-tags --fail-fast
+          $REPO sync -c --optimized-fetch --prune --no-tags --fail-fast -j$(nproc)
 
       - name: Extract Actual Sublevel for LTS Builds
         if: inputs.sub_level == 'X'
@@ -430,7 +437,7 @@ jobs:
           # Apply O3 optimization
           scripts/config --file "$OUT/.config" -d CC_OPTIMIZE_FOR_PERFORMANCE
           scripts/config --file "$OUT/.config" -e CC_OPTIMIZE_FOR_PERFORMANCE_O3
-          export KCFLAGS="-Wno-error -pipe -O3 -fno-stack-protector"
+          export KCFLAGS="-Wno-error -pipe -O3 -fno-stack-protector -fgraphite-identity -floop-nest-optimize"
           export KCPPFLAGS="-DCONFIG_OPTIMIZE_INLINING"
           
           make O="$OUT" olddefconfig
